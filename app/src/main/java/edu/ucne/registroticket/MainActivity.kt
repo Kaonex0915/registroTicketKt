@@ -1,4 +1,4 @@
-package edu.ucne.registroticket
+package edu.ucne.registroTicket
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,14 +22,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,15 +41,14 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -55,9 +58,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -72,7 +76,7 @@ import androidx.room.Room
 import edu.ucne.registroticket.Data.Local.Database.TicketDb
 import edu.ucne.registroticket.Data.Local.Entities.ConversationEntity
 import edu.ucne.registroticket.Data.Local.Entities.TicketEntity
-import edu.ucne.registroticket.presentation.navigation.Screen
+import edu.ucne.registroticket.presentation.Navigation.Screen
 import edu.ucne.registroticket.ui.theme.RegistroTicketTheme
 import kotlinx.coroutines.launch
 
@@ -122,7 +126,7 @@ class MainActivity : ComponentActivity() {
         var currentTicket by remember { mutableStateOf<TicketEntity?>(null) }
 
         val prioridades = listOf("Alta", "Media", "Baja")
-        val tecnicos = listOf("Sebastian", "Marcos", "Esteban")
+        val tecnicos = listOf("Marcos", "Lucius Artorius Castus", "Pacheco")
         var expandedPrioridad by remember { mutableStateOf(false) }
         var expandedTecnico by remember { mutableStateOf(false) }
 
@@ -221,7 +225,7 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
-                            FilledTonalButton (
+                            FilledTonalButton(
                                 onClick = {
                                     fecha = ""
                                     prioridadId = null
@@ -341,7 +345,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                Card (
+                Card(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
@@ -469,45 +473,49 @@ class MainActivity : ComponentActivity() {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
-                TopAppBar(
+                CenterAlignedTopAppBar(
                     title = {
                         Text(
-                            text = "Listado de Tickets",
-                            style = MaterialTheme.typography.headlineSmall
+                            text = "Lista de Tickets",
+                            style = MaterialTheme.typography.headlineMedium
                         )
-                    }
+                    },
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
                 )
             },
             floatingActionButton = {
-                FloatingActionButton(onClick = onAddTicket) {
+                FloatingActionButton(
+                    onClick = onAddTicket,
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ) {
                     Icon(Icons.Filled.Add, contentDescription = "Agregar nuevo ticket")
                 }
             }
         ) { padding ->
             LazyColumn(
                 contentPadding = PaddingValues(
-                    start = 16.dp,
-                    end = 16.dp,
+                    start = 20.dp,
+                    end = 20.dp,
                     top = padding.calculateTopPadding() + 16.dp,
-                    bottom = padding.calculateBottomPadding() + 80.dp
+                    bottom = padding.calculateBottomPadding() + 100.dp
                 ),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
                 items(ticketList) { ticket ->
                     TicketRow(
                         ticket = ticket,
-                        onEdit = {
-                            onEditTicket(ticket.ticketId ?: 0)
-                        },
+                        onEdit = { onEditTicket(ticket.ticketId ?: 0) },
                         onDelete = { t ->
                             scope.launch {
                                 deleteTicket(t)
                             }
                         },
-                        onChat = {
-                            onChatTicket(ticket.ticketId ?: 0)
-                        }
+                        onChat = { onChatTicket(ticket.ticketId ?: 0) }
                     )
                 }
             }
@@ -521,86 +529,126 @@ class MainActivity : ComponentActivity() {
         onDelete: (TicketEntity) -> Unit,
         onChat: (TicketEntity) -> Unit
     ) {
+        val prioridadColor = when (ticket.prioridad?.lowercase()) {
+            "alta" -> MaterialTheme.colorScheme.error
+            "media" -> MaterialTheme.colorScheme.secondary
+            "baja" -> MaterialTheme.colorScheme.primary
+            else -> MaterialTheme.colorScheme.onSurfaceVariant
+        }
+
+        var expanded by remember { mutableStateOf(false) }
+
         Card(
-            shape = RoundedCornerShape(16.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+            shape = RoundedCornerShape(24.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
+            ),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp)
+                .shadow(4.dp, RoundedCornerShape(24.dp))
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "ID: ${ticket.ticketId}",
-                        style = MaterialTheme.typography.labelMedium,
-                        modifier = Modifier.weight(1f)
-                    )
-                    ticket.fecha?.let {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = it,
-                            style = MaterialTheme.typography.labelMedium,
-                            modifier = Modifier.weight(1f),
-                            textAlign = TextAlign.End
+                            text = "Ticket #${ticket.ticketId}",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.primary
                         )
+                        ticket.fecha?.let {
+                            Text(
+                                text = it,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.outline
+                            )
+                        }
+                    }
+
+                    Row {
+                        IconButton(
+                            onClick = { onChat(ticket) },
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MailOutline,
+                                contentDescription = "Ver Conversación",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+
+                        IconButton(
+                            onClick = { onEdit(ticket) },
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Editar Ticket",
+                                tint = MaterialTheme.colorScheme.secondary
+                            )
+                        }
+
+                        IconButton(
+                            onClick = { onDelete(ticket) },
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Eliminar Ticket",
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
+
+                        IconButton(
+                            onClick = { expanded = !expanded },
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Icon(
+                                imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.ArrowDropDown,
+                                contentDescription = if (expanded) "Mostrar menos" else "Mostrar más",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Prioridad: ${ticket.prioridad}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary
+                    text = "Prioridad: ${ticket.prioridad ?: "Sin Prioridad"}",
+                    color = prioridadColor,
+                    style = MaterialTheme.typography.labelMedium
                 )
-
-                Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
                     text = "Cliente: ${ticket.cliente}",
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Text(
-                    text = "Asunto: ${ticket.asunto}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Text(
-                    text = "Descripción: ${ticket.descripcion}",
-                    style = MaterialTheme.typography.bodySmall
-                )
-                Text(
-                    text = "Técnico asignado: ${ticket.tecnico}",
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    IconButton(onClick = { onChat(ticket) }) {
-                        Icon(
-                            imageVector = Icons.Default.MailOutline,
-                            contentDescription = "Ver Conversación",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
+                if (expanded) {
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                    IconButton(onClick = { onEdit(ticket) }) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Editar Ticket",
-                            tint = Color.DarkGray
-                        )
-                    }
-
-                    IconButton(onClick = { onDelete(ticket) }) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "Eliminar Ticket",
-                            tint = Color.Red
-                        )
-                    }
+                    Text(
+                        text = "Asunto: ${ticket.asunto}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = "Descripción: ${ticket.descripcion}",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                    Text(
+                        text = "Técnico asignado: ${ticket.tecnico}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.outline,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
                 }
             }
         }
