@@ -10,11 +10,11 @@ plugins {
 }
 
 android {
-    namespace = "edu.ucne.registroTicket"
+    namespace = "edu.ucne.registroticket"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "edu.ucne.registroTicket"
+        applicationId = "edu.ucne.registroticket"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
